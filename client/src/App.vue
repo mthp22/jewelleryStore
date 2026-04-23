@@ -1,78 +1,164 @@
 <template>
   <div class="app">
-    <video class="=bg-video" autoplay muted loop playsinline object-fit="cover">
-      <source src="@client/public/video/video1.mp4" type="video/mp4" />
+    <!-- VIDEO -->
+    <video
+      ref="videoRef"
+      class="bg-video"
+      autoplay
+      muted
+      loop
+      playsinline
+    >
+      <!-- ⚠️ IMPORTANT: use correct path -->
+      <source src="/video/video1.mp4" type="video/mp4" />
     </video>
 
+    <!-- OVERLAY (non-blocking) -->
     <div class="overlay"></div>
 
+    <!-- NAVBAR -->
     <nav class="navbar">
-      <div class="logo">Jewellery Shop</div>
-      
+      <div class="logo">Diamond Shop</div>
+
       <ul class="nav-links">
-        <li><router-link to="/"> Home</router-link></li>
-        <li><router-link to="/products"> Products</router-link></li>
-        <li><router-link to="/support"> Support</router-link></li>
+        <li><router-link to="/">Home</router-link></li>
+        <li><router-link to="/products">Collections</router-link></li>
+        <li><router-link to="/support">Contact</router-link></li>
       </ul>
     </nav>
 
-    <router-view/>
+    <!-- HERO -->
+    <div class="hero">
+      <div class="hero-content">
+        <h1>Timeless Diamonds</h1>
+        <p>Crafted to brilliance</p>
+        <router-link to="/products" class="cta">
+          Explore Collection
+        </router-link>
+      </div>
+    </div>
+
+    <router-view />
   </div>
 </template>
 
 <script setup lang="ts">
+import { onMounted, ref } from "vue";
+
+const videoRef = ref<HTMLVideoElement | null>(null);
+
+onMounted(() => {
+  if (videoRef.value) {
+    videoRef.value.muted = true;
+
+    // force play (fix autoplay blocking)
+    const playPromise = videoRef.value.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(() => {
+        console.warn("Autoplay blocked");
+      });
+    }
+  }
+});
 </script>
 
 <style scoped>
-  .app{
-    height: 100vh;
-    width: 100%;
-    position:relative;
-    overflow: hidden;
-  }
+/* BASE */
+.app {
+  height: 100vh;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  background: black;
+}
 
-  .bg-video{
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    z-index: -2;
-  }
-  
-  .overlay{
-    position: fixed;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: -1;
-  }
+/* VIDEO */
+.bg-video {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -2;
+}
 
-  .navbar{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px 50px;
-    background: rgb(0, 0, 0,0.4);
-    color: white;
-  }
+/* OVERLAY (IMPORTANT FIX) */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  z-index: -1;
 
-  .logo{
-    font-size: 24px;
-    font-weight: bold;
-    font-style: oblique;
-    font-variant-caps: titling-caps;
-  }
+  /* 🔥 THIS FIXES CLICK BLOCKING */
+  pointer-events: none;
+}
 
-  .nav-links a{
-    list-style: none;
-    display: flex;
-    gap: 30px;
-  }
+/* NAVBAR */
+.navbar {
+  position: relative; /* FIX */
+  z-index: 10;        /* ABOVE EVERYTHING */
 
-  .nav-links a:hover{
-    color: purple;
-    transition: 0.3s ease-in-out;
-  }
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 25px 60px;
+
+  color: white;
+}
+
+/* LOGO */
+.logo {
+  font-family: "Playfair Display", serif;
+  letter-spacing: 3px;
+  font-size: 22px;
+}
+
+/* NAV */
+.nav-links {
+  display: flex;
+  list-style: none;
+  gap: 40px;
+}
+
+.nav-links a {
+  color: white;
+  text-decoration: none;
+  font-size: 13px;
+  letter-spacing: 2px;
+}
+
+.nav-links a:hover {
+  opacity: 0.7;
+}
+
+/* HERO */
+.hero {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.hero-content {
+  text-align: center;
+  color: white;
+}
+
+.hero-content h1 {
+  font-size: 3rem;
+  font-family: "Playfair Display", serif;
+}
+
+.hero-content p {
+  margin: 15px 0;
+}
+
+/* BUTTON */
+.cta {
+  border: 1px solid white;
+  padding: 10px 25px;
+  color: white;
+  text-decoration: none;
+}
 </style>
