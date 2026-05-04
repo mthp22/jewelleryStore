@@ -1,4 +1,5 @@
-.txt
+*.txt
+*.vscode
 
 # Logs
 logs
