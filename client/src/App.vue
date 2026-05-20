@@ -1,4 +1,5 @@
 <template>
+  <Analytics/>
   <div class="app-shell">
     <div class="backdrop" aria-hidden="true">
       <video
@@ -35,6 +36,7 @@
 </template>
 
 <script setup lang="ts">
+import {Analytics} from '@vercel/analytics/vue';
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
