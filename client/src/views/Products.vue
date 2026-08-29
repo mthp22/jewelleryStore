@@ -225,11 +225,13 @@ onBeforeUnmount(() => {
   display: flex;
   justify-content: center;
   gap: 5rem;
-  color: purple;
+  color: rgba(244, 216, 172, 0.7);
+  padding: 2rem;
 }
 .headline {
   margin-bottom: 1.5rem;
   max-width: 65ch;
+  text-align: center;
 }
 
 .kicker {
@@ -254,22 +256,41 @@ onBeforeUnmount(() => {
 .products-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1rem;
+  gap: 1.5rem;
 }
 
 .product-card {
   position: relative;
   display: grid;
   gap: 0.85rem;
-  padding: 1rem;
+  padding: 1.2rem;
   border: 1px solid rgba(255, 255, 255, 0.15);
   background: linear-gradient(160deg, rgba(18, 22, 35, 0.94), rgba(10, 12, 21, 0.6));
-  transition: transform 230ms ease, border-color 230ms ease;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.product-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(255, 228, 190, 0.08), transparent);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.product-card:hover::before {
+  opacity: 1;
 }
 
 .product-card:hover {
-  transform: translateY(-4px);
+  transform: translateY(-8px);
   border-color: rgba(255, 229, 186, 0.5);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3), 0 0 20px rgba(255, 228, 190, 0.1);
 }
 
 .product-card.expanded {
@@ -285,6 +306,14 @@ onBeforeUnmount(() => {
   letter-spacing: 0.08em;
   padding: 0.38rem 0.62rem;
   font-size: 0.66rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 4px;
+}
+
+.expand-toggle:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 228, 190, 0.5);
 }
 
 .model-stage {
@@ -337,6 +366,14 @@ onBeforeUnmount(() => {
   color: #f4ecdf;
   font-size: 0.75rem;
   padding: 0.48rem 0.65rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 4px;
+}
+
+.control:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 228, 190, 0.5);
 }
 
 .zoom-wrap {
@@ -350,6 +387,7 @@ onBeforeUnmount(() => {
 
 .zoom-wrap input {
   width: min(180px, 100%);
+  cursor: pointer;
 }
 
 @media (max-width: 700px) {

@@ -110,8 +110,21 @@ onBeforeUnmount(() => {
   display: flex;
   justify-content: center;
   gap: 5rem;
-  color: purple;
+  color: rgba(244, 216, 172, 0.7);
+  padding: 2rem;
 }
+
+.note a {
+  color: #f4d8ac;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(244, 216, 172, 0.4);
+  transition: border-color 0.3s ease;
+}
+
+.note a:hover {
+  border-color: #f4d8ac;
+}
+
 .panel {
   min-height: 100vh;
   display: flex;
@@ -133,10 +146,22 @@ onBeforeUnmount(() => {
 
 .eyebrow {
   margin: 0;
-  color: rgba(255, 243, 221, 0.85);
-  letter-spacing: 0.16em;
+  color: rgba(255, 228, 190, 0.95);
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  font-size: 0.72rem;
+  font-size: 0.78rem;
+  animation: fadeInUp 0.8s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .lead {
@@ -155,6 +180,7 @@ onBeforeUnmount(() => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 0.5rem;
   width: fit-content;
   text-decoration: none;
   color: #f5efe5;
@@ -164,11 +190,43 @@ onBeforeUnmount(() => {
   letter-spacing: 0.08em;
   font-size: 0.72rem;
   background: rgba(6, 8, 14, 0.4);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.action::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: left 0.5s ease;
+}
+
+.action:hover::before {
+  left: 100%;
 }
 
 .action.primary {
   border-color: rgba(255, 238, 200, 0.55);
   background: rgba(255, 235, 196, 0.14);
+}
+
+.action.primary:hover {
+  background: rgba(255, 235, 196, 0.22);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(255, 228, 190, 0.15);
+}
+
+.action .arrow {
+  transition: transform 0.3s ease;
+}
+
+.action:hover .arrow {
+  transform: translateX(4px);
 }
 
 .info-panel {
@@ -180,6 +238,37 @@ onBeforeUnmount(() => {
     rgba(8, 10, 18, 0.2)
   );
   border-top: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.info-panel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(180deg, rgba(255, 228, 190, 0.6), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.info-panel:hover::before {
+  opacity: 1;
+}
+
+.panel-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.8rem;
+}
+
+.panel-icon {
+  font-size: 2rem;
+  color: rgba(255, 228, 190, 0.8);
+  margin-bottom: 0.5rem;
 }
 
 .info-panel h2 {

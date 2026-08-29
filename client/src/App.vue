@@ -18,17 +18,35 @@
 
     <div class="site-layer">
       <nav class="navbar">
-        <router-link class="logo" to="/">Diamond Shop</router-link>
+        <router-link class="logo" to="/">
+          <span class="logo-icon">✦</span>
+          <span class="logo-text">Diamond Shop</span>
+        </router-link>
 
-        <ul class="nav-links">
-          <li><router-link to="/">Home</router-link></li>
-          <li><router-link to="/products">Collections</router-link></li>
-          <li><router-link to="/support">Support</router-link></li>
+        <button 
+          class="mobile-menu-toggle" 
+          @click="toggleMobileMenu"
+          :aria-expanded="isMobileMenuOpen"
+          aria-label="Toggle menu"
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+
+        <ul class="nav-links" :class="{ 'nav-open': isMobileMenuOpen }">
+          <li><router-link to="/" @click="closeMobileMenu"><span class="link-inner">Home</span></router-link></li>
+          <li><router-link to="/products" @click="closeMobileMenu"><span class="link-inner">Collections</span></router-link></li>
+          <li><router-link to="/support" @click="closeMobileMenu"><span class="link-inner">Support</span></router-link></li>
         </ul>
       </nav>
 
       <main class="route-stage">
-        <router-view />
+        <router-view v-slot="{ Component }">
+          <transition name="fade" mode="out-in">
+            <component :is="Component" />
+          </transition>
+        </router-view>
       </main>
     </div>
   </div>
@@ -41,6 +59,15 @@ import { useRoute } from 'vue-router'
 const route = useRoute()
 const videoRef = ref<HTMLVideoElement | null>(null)
 const showVideo = computed(() => route.name === 'Home')
+const isMobileMenuOpen = ref(false)
+
+const toggleMobileMenu = () => {
+  isMobileMenuOpen.value = !isMobileMenuOpen.value
+}
+
+const closeMobileMenu = () => {
+  isMobileMenuOpen.value = false
+}
 
 const playVideo = async () => {
   if (!showVideo.value) {
@@ -142,12 +169,53 @@ watch(showVideo, () => {
 }
 
 .logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   color: #f7f0e4;
   text-decoration: none;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   font-size: clamp(0.82rem, 1.8vw, 0.96rem);
   font-family: 'Bodoni MT', 'Didot', serif;
+}
+
+.logo-icon {
+  font-size: 1.4rem;
+  color: #ffe4be;
+}
+
+.mobile-menu-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 28px;
+  height: 20px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  z-index: 30;
+}
+
+.mobile-menu-toggle span {
+  display: block;
+  width: 100%;
+  height: 2px;
+  background: #f7f0e4;
+  transition: all 0.3s ease;
+}
+
+.mobile-menu-toggle[aria-expanded="true"] span:nth-child(1) {
+  transform: translateY(9px) rotate(45deg);
+}
+
+.mobile-menu-toggle[aria-expanded="true"] span:nth-child(2) {
+  opacity: 0;
+}
+
+.mobile-menu-toggle[aria-expanded="true"] span:nth-child(3) {
+  transform: translateY(-9px) rotate(-45deg);
 }
 
 .nav-links {
@@ -159,11 +227,13 @@ watch(showVideo, () => {
 }
 
 .nav-links a {
+  position: relative;
   color: rgba(245, 239, 231, 0.94);
   text-decoration: none;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   font-size: 0.72rem;
+  transition: color 0.3s ease;
 }
 
 .nav-links a:hover,
@@ -171,19 +241,64 @@ watch(showVideo, () => {
   color: #fff;
 }
 
+.link-inner::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: rgba(255, 228, 190, 0.6);
+  transition: width 0.3s ease;
+}
+
+.nav-links a:hover .link-inner::after,
+.nav-links a.router-link-active .link-inner::after {
+  width: 100%;
+}
+
 .route-stage {
   min-height: calc(100vh - 72px);
 }
 
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
 @media (max-width: 720px) {
-  .navbar {
-    flex-direction: column;
-    align-items: flex-start;
+  .mobile-menu-toggle {
+    display: flex;
   }
 
   .nav-links {
-    width: 100%;
-    justify-content: space-between;
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 70%;
+    max-width: 300px;
+    height: 100vh;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+    background: rgba(4, 5, 10, 0.98);
+    backdrop-filter: blur(12px);
+    transition: right 0.3s ease;
+    z-index: 25;
+  }
+
+  .nav-links.nav-open {
+    right: 0;
+  }
+
+  .nav-links a {
+    font-size: 1rem;
   }
 }
 </style>

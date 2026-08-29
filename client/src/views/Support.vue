@@ -116,6 +116,7 @@ const submitForm = () => {
 .support-header {
   max-width: 70ch;
   margin-bottom: 1.2rem;
+  text-align: center;
 }
 
 .script-note {
@@ -139,16 +140,24 @@ const submitForm = () => {
 .support-layout {
   display: grid;
   grid-template-columns: 1.2fr 1fr;
-  gap: 1rem;
+  gap: 1.5rem;
 }
 
 .chat-panel,
 .faq-panel {
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(11, 13, 22, 0.62);
-  padding: 1rem;
+  padding: 1.5rem;
   backdrop-filter: blur(8px);
   scroll-margin-top: 90px;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.chat-panel:hover,
+.faq-panel:hover {
+  border-color: rgba(255, 228, 190, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 }
 
 .chat-panel h2,
@@ -171,6 +180,18 @@ const submitForm = () => {
   max-width: min(95%, 38ch);
   padding: 0.64rem 0.82rem;
   border-radius: 18px;
+  animation: bubbleIn 0.4s ease-out;
+}
+
+@keyframes bubbleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 .incoming {
@@ -240,6 +261,15 @@ button {
   color: #f7f1e6;
   padding: 0.58rem 0.62rem;
   font: inherit;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+input:focus,
+textarea:focus {
+  outline: none;
+  border-color: rgba(255, 228, 190, 0.5);
+  box-shadow: 0 0 0 3px rgba(255, 228, 190, 0.1);
 }
 
 button {
@@ -248,18 +278,38 @@ button {
   letter-spacing: 0.08em;
   font-size: 0.72rem;
   width: fit-content;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  background: rgba(255, 228, 190, 0.15);
+  border-color: rgba(255, 228, 190, 0.5);
+  transform: translateY(-2px);
 }
 
 .faq-item {
   border: 1px solid rgba(255, 255, 255, 0.12);
   margin-bottom: 0.55rem;
   background: rgba(10, 12, 19, 0.35);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.faq-item:hover {
+  border-color: rgba(255, 228, 190, 0.3);
 }
 
 summary {
   cursor: pointer;
   padding: 0.7rem;
   font-weight: 500;
+  transition: background 0.3s ease;
+}
+
+summary:hover {
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .faq-item p {
