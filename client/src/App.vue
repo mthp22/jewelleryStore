@@ -1,4 +1,5 @@
 <template>
+  <Analytics/>
   <div class="app-shell">
     <a class="skip-link" href="#main-content">Skip to main content</a>
 
@@ -113,7 +114,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import {Analytics} from '@vercel/analytics/vue';
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
 import SiteFooter from '@/components/SiteFooter.vue'
