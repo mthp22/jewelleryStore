@@ -91,7 +91,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { nextTick, reactive, ref } from 'vue'
 
 type FeedbackState = 'idle' | 'success' | 'error'
 type FieldKey = 'name' | 'email' | 'message'
@@ -148,7 +148,10 @@ const clearError = (field: FieldKey) => {
   }
 }
 
-const focusFirstInvalid = () => {
+const focusFirstInvalid = async () => {
+  // Errors are rendered on the next tick, so wait before looking for them.
+  await nextTick()
+
   const invalid = document.querySelector<HTMLElement>('[aria-invalid="true"]')
   invalid?.focus()
 }
@@ -157,7 +160,7 @@ const submitForm = () => {
   if (!validate()) {
     feedbackState.value = 'error'
     statusMessage.value = 'Please fix the highlighted fields and try again.'
-    focusFirstInvalid()
+    void focusFirstInvalid()
     return
   }
 
