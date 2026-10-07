@@ -1,23 +1,23 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 
 import { getProduct } from '@/data/products'
-import Home from '@/views/Home.vue'
+import HomePage from '@/views/HomePage.vue'
 import NotFound from '@/views/NotFound.vue'
 import ProductDetail from '@/views/ProductDetail.vue'
-import Products from '@/views/Products.vue'
-import Support from '@/views/Support.vue'
+import ProductsPage from '@/views/ProductsPage.vue'
+import SupportPage from '@/views/SupportPage.vue'
 
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
     name: 'Home',
-    component: Home,
+    component: HomePage,
     meta: { title: 'Home' },
   },
   {
     path: '/products',
     name: 'Products',
-    component: Products,
+    component: ProductsPage,
     meta: { title: 'Collections' },
   },
   {
@@ -30,7 +30,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/support',
     name: 'Support',
-    component: Support,
+    component: SupportPage,
     meta: { title: 'Support' },
   },
   {
