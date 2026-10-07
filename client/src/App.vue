@@ -1,15 +1,7 @@
 <template>
   <div class="app-shell">
     <div class="backdrop" aria-hidden="true">
-      <video
-        v-if="showVideo"
-        ref="videoRef"
-        class="bg-video"
-        autoplay
-        muted
-        loop
-        playsinline
-      >
+      <video v-if="showVideo" ref="videoRef" class="bg-video" autoplay muted loop playsinline>
         <source src="/video/video1.mp4" type="video/mp4" />
       </video>
       <div class="overlay"></div>
@@ -70,25 +62,17 @@ watch(showVideo, () => {
 </script>
 
 <style scoped>
-:global(*) {
-  box-sizing: border-box;
-}
-
 :global(html),
-:global(body),
 :global(#app) {
-  margin: 0;
   min-height: 100%;
-  background: #07080d;
-  color: #f8f5ef;
-  font-family: 'Avenir Next', 'Segoe UI', sans-serif;
+  background: var(--bg);
 }
 
 .app-shell {
   position: relative;
   min-height: 100vh;
   overflow-x: clip;
-  background: #07080d;
+  background: var(--bg);
 }
 
 .backdrop {
@@ -111,7 +95,12 @@ watch(showVideo, () => {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(160deg, rgba(2, 2, 8, 0.72) 8%, rgba(6, 8, 16, 0.2) 42%, rgba(4, 4, 9, 0.85) 95%),
+    linear-gradient(
+      160deg,
+      rgba(2, 2, 8, 0.72) 8%,
+      rgba(6, 8, 16, 0.2) 42%,
+      rgba(4, 4, 9, 0.85) 95%
+    ),
     radial-gradient(circle at 22% 24%, rgba(255, 236, 190, 0.18), transparent 54%);
 }
 
@@ -136,18 +125,18 @@ watch(showVideo, () => {
   justify-content: space-between;
   gap: 1rem;
   padding: 1.1rem clamp(1.25rem, 2vw, 2.2rem);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  border-bottom: 1px solid var(--border);
   backdrop-filter: blur(8px);
   background: linear-gradient(180deg, rgba(4, 5, 10, 0.72), rgba(4, 5, 10, 0.35));
 }
 
 .logo {
-  color: #f7f0e4;
+  color: var(--color-ivory);
   text-decoration: none;
-  letter-spacing: 0.14em;
+  letter-spacing: var(--tracking-wide);
   text-transform: uppercase;
   font-size: clamp(0.82rem, 1.8vw, 0.96rem);
-  font-family: 'Bodoni MT', 'Didot', serif;
+  font-family: var(--font-display);
 }
 
 .nav-links {
@@ -159,9 +148,9 @@ watch(showVideo, () => {
 }
 
 .nav-links a {
-  color: rgba(245, 239, 231, 0.94);
+  color: var(--color-text-muted);
   text-decoration: none;
-  letter-spacing: 0.08em;
+  letter-spacing: var(--tracking-caps);
   text-transform: uppercase;
   font-size: 0.72rem;
 }

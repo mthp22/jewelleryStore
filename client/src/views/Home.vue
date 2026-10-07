@@ -7,15 +7,16 @@
         A boutique collection designed for intimate evenings and unforgettable entrances.
       </p>
       <div class="hero-actions">
-        <router-link class="action primary" to="/products">Browse Pieces</router-link>
-        <router-link class="action" to="/support#message">Book A Consultation</router-link>
+        <router-link class="btn btn-primary" to="/products">Browse Pieces</router-link>
+        <router-link class="btn" to="/support#message">Book A Consultation</router-link>
       </div>
     </section>
 
     <section id="craft" :ref="setSectionRef('craft')" class="panel info-panel">
       <h2>Studio Craft</h2>
       <p>
-        Each stone is hand selected for fire, then set with precision to maximize movement and light.
+        Each stone is hand selected for fire, then set with precision to maximize movement and
+        light.
       </p>
     </section>
 
@@ -28,15 +29,11 @@
 
     <section id="visit" :ref="setSectionRef('visit')" class="panel info-panel">
       <h2>Private Appointments</h2>
-      <p>
-        Visit our studio for personalized styling, custom settings and sourcing support.
-      </p>
-      <router-link class="action" to="/support#faq">See FAQs</router-link>
+      <p>Visit our studio for personalized styling, custom settings and sourcing support.</p>
+      <router-link class="btn" to="/support#faq">See FAQs</router-link>
     </section>
     <footer class="note">
-      <p>
-        Images and videos are sourced from Ralph Jacobs https://ralphjacobs.co.za/
-      </p>
+      <p>Images and videos are sourced from Ralph Jacobs https://ralphjacobs.co.za/</p>
     </footer>
   </div>
 </template>
@@ -59,11 +56,9 @@ const sectionRefs = reactive<Record<SectionKey, HTMLElement | null>>({
 })
 
 let observer: IntersectionObserver | null = null
-const setSectionRef =
-  (key: SectionKey) =>
-  (element: Element | ComponentPublicInstance | null) => {
-    sectionRefs[key] = element instanceof HTMLElement ? element : null
-  }
+const setSectionRef = (key: SectionKey) => (element: Element | ComponentPublicInstance | null) => {
+  sectionRefs[key] = element instanceof HTMLElement ? element : null
+}
 
 onMounted(() => {
   const sections = Object.entries(sectionRefs)
@@ -106,11 +101,14 @@ onBeforeUnmount(() => {
   display: grid;
 }
 
-.note{
+.note {
   display: flex;
   justify-content: center;
-  gap: 5rem;
-  color: purple;
+  padding: 1.4rem;
+  color: var(--color-text-faint);
+  font-size: 0.78rem;
+  letter-spacing: 0.03em;
+  text-align: center;
 }
 .panel {
   min-height: 100vh;
@@ -125,7 +123,7 @@ onBeforeUnmount(() => {
 .hero-panel h1 {
   margin: 0;
   max-width: 16ch;
-  font-family: 'Bodoni MT', 'Didot', serif;
+  font-family: var(--font-display);
   font-size: clamp(2.2rem, 6vw, 5.6rem);
   line-height: 0.98;
   letter-spacing: 0.02em;
@@ -142,33 +140,13 @@ onBeforeUnmount(() => {
 .lead {
   max-width: 44ch;
   font-size: clamp(1rem, 2vw, 1.22rem);
-  color: rgba(252, 249, 242, 0.94);
+  color: var(--color-text);
 }
 
 .hero-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 0.8rem;
-}
-
-.action {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: fit-content;
-  text-decoration: none;
-  color: #f5efe5;
-  border: 1px solid rgba(255, 255, 255, 0.36);
-  padding: 0.7rem 1.1rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-size: 0.72rem;
-  background: rgba(6, 8, 14, 0.4);
-}
-
-.action.primary {
-  border-color: rgba(255, 238, 200, 0.55);
-  background: rgba(255, 235, 196, 0.14);
 }
 
 .info-panel {
@@ -184,7 +162,7 @@ onBeforeUnmount(() => {
 
 .info-panel h2 {
   margin: 0;
-  font-family: 'Bodoni MT', 'Didot', serif;
+  font-family: var(--font-display);
   letter-spacing: 0.04em;
   text-transform: uppercase;
   font-size: clamp(1.6rem, 3vw, 2.6rem);
@@ -193,6 +171,6 @@ onBeforeUnmount(() => {
 .info-panel p {
   margin: 0;
   max-width: 50ch;
-  color: rgba(242, 238, 231, 0.9);
+  color: var(--color-text-muted);
 }
 </style>

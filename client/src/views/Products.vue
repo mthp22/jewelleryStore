@@ -4,7 +4,8 @@
       <p class="kicker">Collections</p>
       <h1>Diamond Gallery</h1>
       <p>
-        Discover brilliance reimagined—each diamond tells a story of elegance, crafted to sparkle from every angle.
+        Discover brilliance reimagined—each diamond tells a story of elegance, crafted to sparkle
+        from every angle.
       </p>
     </header>
 
@@ -18,7 +19,11 @@
         @mouseenter="hoveredId = item.id"
         @mouseleave="hoveredId = null"
       >
-        <button class="expand-toggle" type="button" @click="toggleExpanded(item.id)">
+        <button
+          class="btn btn-ghost btn-sm expand-toggle"
+          type="button"
+          @click="toggleExpanded(item.id)"
+        >
           {{ expandedId === item.id ? 'Collapse' : 'Expand' }}
         </button>
 
@@ -83,18 +88,13 @@
       </article>
     </div>
     <footer class="note">
-      <p>
-        Images and videos are sourced from Ralph Jacobs https://ralphjacobs.co.za/
-      </p>
+      <p>Images and videos are sourced from Ralph Jacobs https://ralphjacobs.co.za/</p>
     </footer>
   </div>
 </template>
 
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, reactive, ref } from 'vue'
-
-
-
 
 type Product = {
   id: string
@@ -111,7 +111,8 @@ const products: Product[] = [
     name: 'Arya Platinum Hidden Halo Engagement Ring',
     description: 'Timeless Elegance with the Arya Design',
     assetType: 'video',
-    assetSrc: 'https://ralphjacobs.co.za/cdn/shop/videos/c/vp/7812236f3c42459ca303183f539a06e5/7812236f3c42459ca303183f539a06e5.HD-720p-3.0Mbps-36052827.mp4?v=0',
+    assetSrc:
+      'https://ralphjacobs.co.za/cdn/shop/videos/c/vp/7812236f3c42459ca303183f539a06e5/7812236f3c42459ca303183f539a06e5.HD-720p-3.0Mbps-36052827.mp4?v=0',
     poster: '',
   },
   {
@@ -137,9 +138,10 @@ const expandedId = ref<string | null>(null)
 const visibleAssets = reactive<Record<string, boolean>>({})
 
 const state = reactive<Record<string, { rotation: number; zoom: number }>>(
-  Object.fromEntries(
-    products.map((item) => [item.id, { rotation: 0, zoom: 1 }]),
-  ) as Record<string, { rotation: number; zoom: number }>,
+  Object.fromEntries(products.map((item) => [item.id, { rotation: 0, zoom: 1 }])) as Record<
+    string,
+    { rotation: number; zoom: number }
+  >,
 )
 
 let observer: IntersectionObserver | null = null
@@ -206,13 +208,11 @@ onMounted(() => {
       observer.observe(card)
     }
   }
-
 })
 
 onBeforeUnmount(() => {
   observer?.disconnect()
 })
-
 </script>
 
 <style scoped>
@@ -221,11 +221,14 @@ onBeforeUnmount(() => {
   padding: clamp(1.3rem, 2vw, 2.2rem) clamp(1.1rem, 3vw, 3.5rem) 3rem;
   background: linear-gradient(170deg, rgba(6, 8, 15, 0.96), rgba(12, 15, 24, 0.84));
 }
-.note{
+.note {
   display: flex;
   justify-content: center;
-  gap: 5rem;
-  color: purple;
+  padding: 1.4rem;
+  color: var(--color-text-faint);
+  font-size: 0.78rem;
+  letter-spacing: 0.03em;
+  text-align: center;
 }
 .headline {
   margin-bottom: 1.5rem;
@@ -237,18 +240,18 @@ onBeforeUnmount(() => {
   text-transform: uppercase;
   letter-spacing: 0.12em;
   font-size: 0.72rem;
-  color: rgba(255, 230, 189, 0.85);
+  color: var(--gold);
 }
 
 .headline h1 {
   margin: 0.3rem 0 0.7rem;
-  font-family: 'Bodoni MT', 'Didot', serif;
+  font-family: var(--font-display);
   font-size: clamp(1.9rem, 4vw, 3.4rem);
 }
 
 .headline p {
   margin: 0;
-  color: rgba(244, 238, 229, 0.88);
+  color: var(--color-text-muted);
 }
 
 .products-grid {
@@ -262,14 +265,18 @@ onBeforeUnmount(() => {
   display: grid;
   gap: 0.85rem;
   padding: 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
   background: linear-gradient(160deg, rgba(18, 22, 35, 0.94), rgba(10, 12, 21, 0.6));
-  transition: transform 230ms ease, border-color 230ms ease;
+  box-shadow: var(--shadow-card);
+  transition:
+    transform var(--speed-base) var(--ease),
+    border-color var(--speed-base) var(--ease);
 }
 
 .product-card:hover {
   transform: translateY(-4px);
-  border-color: rgba(255, 229, 186, 0.5);
+  border-color: var(--border-gold);
 }
 
 .product-card.expanded {
@@ -278,23 +285,16 @@ onBeforeUnmount(() => {
 
 .expand-toggle {
   justify-self: flex-end;
-  border: 1px solid rgba(255, 255, 255, 0.24);
-  background: transparent;
-  color: #f6eee2;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  padding: 0.38rem 0.62rem;
-  font-size: 0.66rem;
 }
 
 .model-stage {
   position: relative;
   overflow: hidden;
-  border-radius: 0.45rem;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
   aspect-ratio: 4 / 3;
   transform-origin: center;
-  transition: transform 240ms ease;
+  transition: transform var(--speed-base) var(--ease);
   background: linear-gradient(130deg, rgba(24, 28, 46, 0.95), rgba(12, 14, 23, 0.8));
 }
 
@@ -310,18 +310,18 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: rgba(241, 237, 228, 0.7);
+  color: var(--color-text-faint);
 }
 
 .card-copy h2 {
   margin: 0;
-  font-family: 'Bodoni MT', 'Didot', serif;
+  font-family: var(--font-display);
   font-size: 1.44rem;
 }
 
 .card-copy p {
   margin: 0.34rem 0 0;
-  color: rgba(243, 238, 229, 0.82);
+  color: var(--color-text-muted);
 }
 
 .controls {

@@ -3,7 +3,9 @@
     <header class="support-header">
       <p class="script-note">A note from our studio</p>
       <h1>How Can We Help You Shine?</h1>
-      <p>Send us your request and our gem consultants will respond with tailored recommendations.</p>
+      <p>
+        Send us your request and our gem consultants will respond with tailored recommendations.
+      </p>
     </header>
 
     <div class="support-layout">
@@ -40,7 +42,7 @@
             <textarea v-model.trim="form.message" rows="4"></textarea>
           </label>
 
-          <button type="submit">Send Message</button>
+          <button type="submit" class="btn btn-primary">Send Message</button>
         </form>
       </section>
 
@@ -83,8 +85,7 @@ const faqs = [
   },
   {
     question: 'How long does a custom setting take?',
-    answer:
-      'Most bespoke settings are completed in 3 to 5 weeks after design confirmation.',
+    answer: 'Most bespoke settings are completed in 3 to 5 weeks after design confirmation.',
   },
 ]
 
@@ -120,20 +121,20 @@ const submitForm = () => {
 
 .script-note {
   margin: 0;
-  font-family: 'Brush Script MT', 'Lucida Handwriting', cursive;
+  font-family: var(--font-script);
   font-size: clamp(1.6rem, 4vw, 2.3rem);
-  color: #f4d8ac;
+  color: var(--gold);
 }
 
 .support-header h1 {
   margin: 0.4rem 0 0.7rem;
-  font-family: 'Bodoni MT', 'Didot', serif;
+  font-family: var(--font-display);
   font-size: clamp(1.8rem, 4vw, 3rem);
 }
 
 .support-header p {
   margin: 0;
-  color: rgba(246, 240, 231, 0.86);
+  color: var(--color-text-muted);
 }
 
 .support-layout {
@@ -144,8 +145,9 @@ const submitForm = () => {
 
 .chat-panel,
 .faq-panel {
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(11, 13, 22, 0.62);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
   padding: 1rem;
   backdrop-filter: blur(8px);
   scroll-margin-top: 90px;
@@ -154,7 +156,7 @@ const submitForm = () => {
 .chat-panel h2,
 .faq-panel h2 {
   margin: 0 0 0.8rem;
-  font-family: 'Bodoni MT', 'Didot', serif;
+  font-family: var(--font-display);
 }
 
 .bubble-list {
@@ -170,23 +172,23 @@ const submitForm = () => {
   width: fit-content;
   max-width: min(95%, 38ch);
   padding: 0.64rem 0.82rem;
-  border-radius: 18px;
+  border-radius: var(--radius-lg);
 }
 
 .incoming {
-  background: rgba(255, 234, 193, 0.2);
-  border-top-left-radius: 6px;
+  background: var(--gold-soft);
+  border-top-left-radius: var(--radius-sm);
 }
 
 .outgoing {
   margin-left: auto;
-  background: rgba(130, 255, 191, 0.16);
-  border-top-right-radius: 6px;
+  background: rgba(141, 255, 190, 0.16);
+  border-top-right-radius: var(--radius-sm);
 }
 
 .checkmark {
   font-weight: 700;
-  color: #89ffb2;
+  color: var(--success);
   animation: pop 220ms ease-in-out;
 }
 
@@ -233,27 +235,32 @@ label {
 }
 
 input,
-textarea,
-button {
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background: rgba(6, 8, 13, 0.52);
-  color: #f7f1e6;
+textarea {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-sunken);
+  color: var(--color-ivory);
   padding: 0.58rem 0.62rem;
   font: inherit;
+  transition: border-color var(--speed-fast) var(--ease);
 }
 
-button {
-  cursor: pointer;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-size: 0.72rem;
-  width: fit-content;
+input::placeholder,
+textarea::placeholder {
+  color: var(--color-text-faint);
+}
+
+input:focus,
+textarea:focus {
+  border-color: var(--border-gold);
 }
 
 .faq-item {
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
   margin-bottom: 0.55rem;
   background: rgba(10, 12, 19, 0.35);
+  overflow: hidden;
 }
 
 summary {
@@ -265,7 +272,7 @@ summary {
 .faq-item p {
   margin: 0;
   padding: 0 0.7rem 0.7rem;
-  color: rgba(245, 240, 232, 0.86);
+  color: var(--color-text-muted);
 }
 
 @media (max-width: 860px) {
