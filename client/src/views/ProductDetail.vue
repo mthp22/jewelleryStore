@@ -25,7 +25,7 @@
             loop
             playsinline
             preload="metadata"
-            @loadeddata="assetReady = true"
+            @loadedmetadata="assetReady = true"
             @error="assetReady = true"
             @play="isPlaying = true"
             @pause="isPlaying = false"
