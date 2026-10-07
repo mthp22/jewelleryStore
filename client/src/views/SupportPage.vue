@@ -3,7 +3,9 @@
     <header class="support-header">
       <p class="script-note">A note from our studio</p>
       <h1>How Can We Help You Shine?</h1>
-      <p>Send us your request and our gem consultants will respond with tailored recommendations.</p>
+      <p>
+        Send us your request and our gem consultants will respond with tailored recommendations.
+      </p>
     </header>
 
     <div class="support-layout">
@@ -27,20 +29,52 @@
         <form class="contact-form" @submit.prevent="submitForm" novalidate>
           <label>
             Name
-            <input v-model.trim="form.name" type="text" autocomplete="name" />
+            <input
+              v-model.trim="form.name"
+              type="text"
+              autocomplete="name"
+              required
+              :aria-invalid="Boolean(errors.name)"
+              aria-describedby="name-error"
+              @input="clearError('name')"
+            />
+            <span v-if="errors.name" id="name-error" class="field-error" role="alert">
+              {{ errors.name }}
+            </span>
           </label>
 
           <label>
             Email
-            <input v-model.trim="form.email" type="email" autocomplete="email" />
+            <input
+              v-model.trim="form.email"
+              type="email"
+              autocomplete="email"
+              required
+              :aria-invalid="Boolean(errors.email)"
+              aria-describedby="email-error"
+              @input="clearError('email')"
+            />
+            <span v-if="errors.email" id="email-error" class="field-error" role="alert">
+              {{ errors.email }}
+            </span>
           </label>
 
           <label>
             Message
-            <textarea v-model.trim="form.message" rows="4"></textarea>
+            <textarea
+              v-model.trim="form.message"
+              rows="4"
+              required
+              :aria-invalid="Boolean(errors.message)"
+              aria-describedby="message-error"
+              @input="clearError('message')"
+            ></textarea>
+            <span v-if="errors.message" id="message-error" class="field-error" role="alert">
+              {{ errors.message }}
+            </span>
           </label>
 
-          <button type="submit">Send Message</button>
+          <button type="submit" class="btn btn-primary">Send Message</button>
         </form>
       </section>
 
@@ -57,11 +91,18 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { nextTick, reactive, ref } from 'vue'
 
 type FeedbackState = 'idle' | 'success' | 'error'
+type FieldKey = 'name' | 'email' | 'message'
 
 const form = reactive({
+  name: '',
+  email: '',
+  message: '',
+})
+
+const errors = reactive<Record<FieldKey, string>>({
   name: '',
   email: '',
   message: '',
@@ -83,17 +124,43 @@ const faqs = [
   },
   {
     question: 'How long does a custom setting take?',
-    answer:
-      'Most bespoke settings are completed in 3 to 5 weeks after design confirmation.',
+    answer: 'Most bespoke settings are completed in 3 to 5 weeks after design confirmation.',
   },
 ]
 
 const isEmailValid = (email: string) => /\S+@\S+\.\S+/.test(email)
 
+const validate = () => {
+  errors.name = form.name ? '' : 'Please tell us your name.'
+  errors.email = !form.email
+    ? 'We need your email so we can reply.'
+    : isEmailValid(form.email)
+      ? ''
+      : 'That email address does not look right.'
+  errors.message = form.message ? '' : 'Share a little about what you are looking for.'
+
+  return (Object.keys(errors) as FieldKey[]).every((field) => !errors[field])
+}
+
+const clearError = (field: FieldKey) => {
+  if (errors[field]) {
+    errors[field] = ''
+  }
+}
+
+const focusFirstInvalid = async () => {
+  // Errors are rendered on the next tick, so wait before looking for them.
+  await nextTick()
+
+  const invalid = document.querySelector<HTMLElement>('[aria-invalid="true"]')
+  invalid?.focus()
+}
+
 const submitForm = () => {
-  if (!form.name || !form.email || !form.message || !isEmailValid(form.email)) {
+  if (!validate()) {
     feedbackState.value = 'error'
-    statusMessage.value = 'Please add a valid name, email and message before sending.'
+    statusMessage.value = 'Please fix the highlighted fields and try again.'
+    void focusFirstInvalid()
     return
   }
 
@@ -120,20 +187,20 @@ const submitForm = () => {
 
 .script-note {
   margin: 0;
-  font-family: 'Brush Script MT', 'Lucida Handwriting', cursive;
+  font-family: var(--font-script);
   font-size: clamp(1.6rem, 4vw, 2.3rem);
-  color: #f4d8ac;
+  color: var(--gold);
 }
 
 .support-header h1 {
   margin: 0.4rem 0 0.7rem;
-  font-family: 'Bodoni MT', 'Didot', serif;
+  font-family: var(--font-display);
   font-size: clamp(1.8rem, 4vw, 3rem);
 }
 
 .support-header p {
   margin: 0;
-  color: rgba(246, 240, 231, 0.86);
+  color: var(--color-text-muted);
 }
 
 .support-layout {
@@ -144,17 +211,18 @@ const submitForm = () => {
 
 .chat-panel,
 .faq-panel {
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(11, 13, 22, 0.62);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
   padding: 1rem;
   backdrop-filter: blur(8px);
-  scroll-margin-top: 90px;
+  scroll-margin-top: calc(var(--nav-h, 72px) + 16px);
 }
 
 .chat-panel h2,
 .faq-panel h2 {
   margin: 0 0 0.8rem;
-  font-family: 'Bodoni MT', 'Didot', serif;
+  font-family: var(--font-display);
 }
 
 .bubble-list {
@@ -170,23 +238,23 @@ const submitForm = () => {
   width: fit-content;
   max-width: min(95%, 38ch);
   padding: 0.64rem 0.82rem;
-  border-radius: 18px;
+  border-radius: var(--radius-lg);
 }
 
 .incoming {
-  background: rgba(255, 234, 193, 0.2);
-  border-top-left-radius: 6px;
+  background: var(--gold-soft);
+  border-top-left-radius: var(--radius-sm);
 }
 
 .outgoing {
   margin-left: auto;
-  background: rgba(130, 255, 191, 0.16);
-  border-top-right-radius: 6px;
+  background: rgba(141, 255, 190, 0.16);
+  border-top-right-radius: var(--radius-sm);
 }
 
 .checkmark {
   font-weight: 700;
-  color: #89ffb2;
+  color: var(--success);
   animation: pop 220ms ease-in-out;
 }
 
@@ -233,27 +301,43 @@ label {
 }
 
 input,
-textarea,
-button {
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background: rgba(6, 8, 13, 0.52);
-  color: #f7f1e6;
+textarea {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-sunken);
+  color: var(--color-ivory);
   padding: 0.58rem 0.62rem;
   font: inherit;
+  transition: border-color var(--speed-fast) var(--ease);
 }
 
-button {
-  cursor: pointer;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-size: 0.72rem;
-  width: fit-content;
+input::placeholder,
+textarea::placeholder {
+  color: var(--color-text-faint);
+}
+
+input:focus,
+textarea:focus {
+  border-color: var(--border-gold);
+}
+
+input[aria-invalid='true'],
+textarea[aria-invalid='true'] {
+  border-color: var(--error);
+}
+
+.field-error {
+  color: var(--error);
+  font-size: 0.74rem;
+  letter-spacing: 0.02em;
 }
 
 .faq-item {
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
   margin-bottom: 0.55rem;
   background: rgba(10, 12, 19, 0.35);
+  overflow: hidden;
 }
 
 summary {
@@ -265,7 +349,7 @@ summary {
 .faq-item p {
   margin: 0;
   padding: 0 0.7rem 0.7rem;
-  color: rgba(245, 240, 232, 0.86);
+  color: var(--color-text-muted);
 }
 
 @media (max-width: 860px) {

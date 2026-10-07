@@ -1,0 +1,222 @@
+/**
+ * Design foundation: tokens, reset, typography and the shared button system.
+ * Components should reference these variables instead of raw colour values.
+ */
+
+:root {
+  /* ---- Surfaces ---- */
+  --bg: #07080d;
+  --bg-soft: #0b0d16;
+  --surface: rgba(11, 13, 22, 0.72);
+  --surface-raised: rgba(18, 22, 35, 0.94);
+  --surface-sunken: rgba(6, 8, 13, 0.55);
+
+  /* ---- Ink ---- */
+  --color-ivory: #f8f5ef;
+  --color-text: rgba(248, 245, 239, 0.96);
+  --color-text-muted: rgba(236, 232, 225, 0.88);
+  --color-text-faint: rgba(228, 223, 215, 0.74);
+
+  /* ---- Accents ---- */
+  --gold: #f4d8ac;
+  --gold-bright: #ffe9c2;
+  --gold-soft: rgba(255, 235, 196, 0.16);
+  --success: #8dffbe;
+  --error: #ffb0b0;
+
+  /* ---- Lines ---- */
+  --border: rgba(255, 255, 255, 0.16);
+  --border-strong: rgba(255, 255, 255, 0.34);
+  --border-gold: rgba(255, 233, 194, 0.55);
+
+  /* ---- Type ---- */
+  --font-display: 'Playfair Display', 'Bodoni MT', 'Didot', Georgia, serif;
+  --font-body: 'Avenir Next', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-script: 'Brush Script MT', 'Lucida Handwriting', cursive;
+  --tracking-caps: 0.08em;
+  --tracking-wide: 0.14em;
+
+  /* ---- Radius scale ---- */
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-pill: 999px;
+
+  /* ---- Motion ---- */
+  --speed-fast: 180ms;
+  --speed-base: 240ms;
+  --speed-slow: 420ms;
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+
+  /* ---- Elevation ---- */
+  --shadow-card: 0 18px 40px rgba(0, 0, 0, 0.38);
+  --shadow-pop: 0 26px 64px rgba(0, 0, 0, 0.5);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+
+a {
+  color: inherit;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+img,
+video {
+  max-width: 100%;
+}
+
+/* ------------------------------------------------------------------ */
+/* Button system                                                       */
+/* ------------------------------------------------------------------ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: fit-content;
+  padding: 0.72rem 1.2rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface-sunken);
+  color: var(--color-ivory);
+  font-family: var(--font-body);
+  font-size: 0.74rem;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background var(--speed-fast) var(--ease),
+    border-color var(--speed-fast) var(--ease),
+    color var(--speed-fast) var(--ease),
+    transform var(--speed-fast) var(--ease);
+}
+
+.btn:hover {
+  border-color: var(--border-gold);
+  background: var(--gold-soft);
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn-primary {
+  border-color: var(--border-gold);
+  background: var(--gold-soft);
+  color: var(--gold-bright);
+}
+
+.btn-primary:hover {
+  background: rgba(255, 235, 196, 0.26);
+}
+
+.btn-ghost {
+  background: transparent;
+  border-color: var(--border);
+}
+
+.btn-sm {
+  padding: 0.4rem 0.72rem;
+  font-size: 0.68rem;
+}
+
+.btn-block {
+  width: 100%;
+}
+
+.btn[aria-pressed='true'] {
+  border-color: var(--border-gold);
+  background: var(--gold-soft);
+  color: var(--gold-bright);
+}
+
+/* ------------------------------------------------------------------ */
+/* Accessibility                                                       */
+/* ------------------------------------------------------------------ */
+
+:where(a, button, input, textarea, summary, select, [tabindex]):focus-visible {
+  outline: 2px solid var(--gold-bright);
+  outline-offset: 3px;
+}
+
+.skip-link {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 100;
+  transform: translateY(-250%);
+  padding: 0.7rem 1.1rem;
+  border: 1px solid var(--border-gold);
+  border-radius: var(--radius-sm);
+  background: var(--bg-soft);
+  color: var(--color-ivory);
+  font-size: 0.74rem;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: transform var(--speed-fast) var(--ease);
+}
+
+.skip-link:focus-visible {
+  transform: translateY(0);
+}
+
+/* The skip-link target is focused programmatically, not by keyboard nav. */
+[tabindex='-1']:focus {
+  outline: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media (prefers-contrast: more) {
+  :root {
+    --color-text-muted: #fff;
+    --color-text-faint: #f0ece5;
+    --border: rgba(255, 255, 255, 0.55);
+  }
+}
