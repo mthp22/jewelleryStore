@@ -117,7 +117,7 @@ onBeforeUnmount(() => {
   justify-content: center;
   gap: 1.1rem;
   padding: clamp(2rem, 5vw, 5.4rem) clamp(1.4rem, 5vw, 7.8rem);
-  scroll-margin-top: 80px;
+  scroll-margin-top: calc(var(--nav-h, 72px) + 8px);
 }
 
 .hero-panel h1 {

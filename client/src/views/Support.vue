@@ -213,7 +213,7 @@ const submitForm = () => {
   background: var(--surface);
   padding: 1rem;
   backdrop-filter: blur(8px);
-  scroll-margin-top: 90px;
+  scroll-margin-top: calc(var(--nav-h, 72px) + 16px);
 }
 
 .chat-panel h2,
