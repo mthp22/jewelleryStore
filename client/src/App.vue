@@ -1,5 +1,7 @@
 <template>
   <div class="app-shell">
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+
     <div class="backdrop" aria-hidden="true">
       <video v-if="showVideo" ref="videoRef" class="bg-video" autoplay muted loop playsinline>
         <source src="/video/video1.mp4" type="video/mp4" />
@@ -19,7 +21,7 @@
         </ul>
       </nav>
 
-      <main class="route-stage">
+      <main id="main-content" class="route-stage" tabindex="-1">
         <router-view />
       </main>
     </div>
@@ -32,7 +34,8 @@ import { useRoute } from 'vue-router'
 
 const route = useRoute()
 const videoRef = ref<HTMLVideoElement | null>(null)
-const showVideo = computed(() => route.name === 'Home')
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
+const showVideo = computed(() => route.name === 'Home' && !reducedMotion.matches)
 
 const playVideo = async () => {
   if (!showVideo.value) {

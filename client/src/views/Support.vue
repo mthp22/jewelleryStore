@@ -29,17 +29,49 @@
         <form class="contact-form" @submit.prevent="submitForm" novalidate>
           <label>
             Name
-            <input v-model.trim="form.name" type="text" autocomplete="name" />
+            <input
+              v-model.trim="form.name"
+              type="text"
+              autocomplete="name"
+              required
+              :aria-invalid="Boolean(errors.name)"
+              aria-describedby="name-error"
+              @input="clearError('name')"
+            />
+            <span v-if="errors.name" id="name-error" class="field-error" role="alert">
+              {{ errors.name }}
+            </span>
           </label>
 
           <label>
             Email
-            <input v-model.trim="form.email" type="email" autocomplete="email" />
+            <input
+              v-model.trim="form.email"
+              type="email"
+              autocomplete="email"
+              required
+              :aria-invalid="Boolean(errors.email)"
+              aria-describedby="email-error"
+              @input="clearError('email')"
+            />
+            <span v-if="errors.email" id="email-error" class="field-error" role="alert">
+              {{ errors.email }}
+            </span>
           </label>
 
           <label>
             Message
-            <textarea v-model.trim="form.message" rows="4"></textarea>
+            <textarea
+              v-model.trim="form.message"
+              rows="4"
+              required
+              :aria-invalid="Boolean(errors.message)"
+              aria-describedby="message-error"
+              @input="clearError('message')"
+            ></textarea>
+            <span v-if="errors.message" id="message-error" class="field-error" role="alert">
+              {{ errors.message }}
+            </span>
           </label>
 
           <button type="submit" class="btn btn-primary">Send Message</button>
@@ -62,8 +94,15 @@
 import { reactive, ref } from 'vue'
 
 type FeedbackState = 'idle' | 'success' | 'error'
+type FieldKey = 'name' | 'email' | 'message'
 
 const form = reactive({
+  name: '',
+  email: '',
+  message: '',
+})
+
+const errors = reactive<Record<FieldKey, string>>({
   name: '',
   email: '',
   message: '',
@@ -91,10 +130,34 @@ const faqs = [
 
 const isEmailValid = (email: string) => /\S+@\S+\.\S+/.test(email)
 
+const validate = () => {
+  errors.name = form.name ? '' : 'Please tell us your name.'
+  errors.email = !form.email
+    ? 'We need your email so we can reply.'
+    : isEmailValid(form.email)
+      ? ''
+      : 'That email address does not look right.'
+  errors.message = form.message ? '' : 'Share a little about what you are looking for.'
+
+  return (Object.keys(errors) as FieldKey[]).every((field) => !errors[field])
+}
+
+const clearError = (field: FieldKey) => {
+  if (errors[field]) {
+    errors[field] = ''
+  }
+}
+
+const focusFirstInvalid = () => {
+  const invalid = document.querySelector<HTMLElement>('[aria-invalid="true"]')
+  invalid?.focus()
+}
+
 const submitForm = () => {
-  if (!form.name || !form.email || !form.message || !isEmailValid(form.email)) {
+  if (!validate()) {
     feedbackState.value = 'error'
-    statusMessage.value = 'Please add a valid name, email and message before sending.'
+    statusMessage.value = 'Please fix the highlighted fields and try again.'
+    focusFirstInvalid()
     return
   }
 
@@ -253,6 +316,17 @@ textarea::placeholder {
 input:focus,
 textarea:focus {
   border-color: var(--border-gold);
+}
+
+input[aria-invalid='true'],
+textarea[aria-invalid='true'] {
+  border-color: var(--error);
+}
+
+.field-error {
+  color: var(--error);
+  font-size: 0.74rem;
+  letter-spacing: 0.02em;
 }
 
 .faq-item {
