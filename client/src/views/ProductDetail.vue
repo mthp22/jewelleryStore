@@ -76,7 +76,10 @@
         <li v-for="other in related" :key="other.id">
           <router-link :to="`/products/${other.id}`" class="related-card">
             <span class="related-thumb">
-              <img :src="other.assetSrc" :alt="other.name" loading="lazy" />
+              <img v-if="other.assetType === 'image'" :src="other.assetSrc" alt="" loading="lazy" />
+              <span v-else class="thumb-fallback" aria-hidden="true">
+                {{ other.cut }}
+              </span>
             </span>
             <span class="related-name">{{ other.name }}</span>
             <span class="related-price">{{ formatPrice(other.price) }}</span>
@@ -377,6 +380,19 @@ watch(
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.thumb-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(130deg, rgba(24, 28, 46, 0.95), rgba(12, 14, 23, 0.8));
+  color: var(--gold);
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  letter-spacing: 0.06em;
 }
 
 .related-name {

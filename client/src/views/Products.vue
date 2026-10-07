@@ -9,9 +9,58 @@
       </p>
     </header>
 
-    <div class="products-grid">
+    <div class="toolbar">
+      <div class="search">
+        <label class="sr-only" for="product-search">Search pieces</label>
+        <input
+          id="product-search"
+          v-model="query"
+          type="search"
+          placeholder="Search pieces, cuts, metals…"
+        />
+      </div>
+
+      <div class="chips" role="group" aria-label="Filter by category">
+        <button
+          v-for="option in categoryOptions"
+          :key="option"
+          class="chip"
+          type="button"
+          :class="{ active: activeCategory === option }"
+          :aria-pressed="activeCategory === option"
+          @click="activeCategory = option"
+        >
+          {{ option }}
+        </button>
+        <button
+          class="chip"
+          type="button"
+          :class="{ active: savedOnly }"
+          :aria-pressed="savedOnly"
+          @click="savedOnly = !savedOnly"
+        >
+          Saved · {{ wishlist.count }}
+        </button>
+      </div>
+
+      <div class="sort">
+        <label for="product-sort">Sort</label>
+        <select id="product-sort" v-model="sortBy">
+          <option value="featured">Featured</option>
+          <option value="price-asc">Price · low to high</option>
+          <option value="price-desc">Price · high to low</option>
+          <option value="name">Name · A to Z</option>
+        </select>
+      </div>
+    </div>
+
+    <p class="result-count" role="status">
+      {{ filteredProducts.length }} {{ filteredProducts.length === 1 ? 'piece' : 'pieces' }}
+    </p>
+
+    <div v-if="filteredProducts.length" ref="gridRef" class="products-grid">
       <article
-        v-for="item in products"
+        v-for="item in filteredProducts"
         :key="item.id"
         class="product-card"
         :data-id="item.id"
@@ -27,7 +76,12 @@
           {{ expandedId === item.id ? 'Collapse' : 'Expand' }}
         </button>
 
-        <div class="model-stage" :style="stageTransform(item.id)">
+        <router-link
+          class="model-stage"
+          :to="`/products/${item.id}`"
+          :style="stageTransform(item.id)"
+          :aria-label="`View ${item.name}`"
+        >
           <template v-if="isAssetVisible(item.id)">
             <img
               v-if="item.assetType === 'image'"
@@ -38,40 +92,41 @@
             <video
               v-else
               :src="item.assetSrc"
-              :poster="item.poster"
+              :poster="item.poster || undefined"
               autoplay
               muted
               loop
               playsinline
-              preload="none"
+              preload="metadata"
             ></video>
           </template>
           <div v-else class="media-placeholder">Loading preview…</div>
-        </div>
+        </router-link>
 
         <div class="card-copy">
-          <h2>{{ item.name }}</h2>
+          <p class="card-category">{{ item.category }}</p>
+          <h2>
+            <router-link :to="`/products/${item.id}`">{{ item.name }}</router-link>
+          </h2>
           <p>{{ item.description }}</p>
+          <p class="card-price">{{ formatPrice(item.price) }}</p>
+        </div>
+
+        <div class="card-actions">
+          <button
+            class="btn btn-sm"
+            type="button"
+            :aria-pressed="wishlist.has(item.id)"
+            @click="wishlist.toggle(item.id)"
+          >
+            {{ wishlist.has(item.id) ? 'Saved' : 'Save' }}
+          </button>
+          <button class="btn btn-primary btn-sm" type="button" @click="addToBag(item)">
+            Add to bag
+          </button>
         </div>
 
         <div class="controls" :aria-label="`${item.name} controls`">
-          <!-- <button
-            type="button"
-            class="control"
-            @click="rotate(item.id, -8)"
-            :aria-label="`Rotate ${item.name} left`"
-          >
-            Rotate Left
-          </button>
-          <button
-            type="button"
-            class="control"
-            @click="rotate(item.id, 8)"
-            :aria-label="`Rotate ${item.name} right`"
-          >
-            Rotate Right
-          </button> -->
-
           <label class="zoom-wrap" :for="`zoom-${item.id}`">
             Zoom
             <input
@@ -83,56 +138,44 @@
               :value="zoomValue(item.id)"
               @input="setZoom(item.id, $event)"
             />
+            <span class="zoom-value">{{ zoomPercent(item.id) }}</span>
           </label>
         </div>
       </article>
+    </div>
+
+    <div v-else class="empty">
+      <p>No pieces match those filters yet.</p>
+      <button class="btn btn-sm" type="button" @click="resetFilters">Reset filters</button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, reactive, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 
-type Product = {
-  id: string
-  name: string
-  description: string
-  assetType: 'image' | 'video'
-  assetSrc: string
-  poster?: string
-}
+import { categories, products, type Category, type Product } from '@/data/products'
+import { useBagStore } from '@/stores/cart'
+import { useWishlistStore } from '@/stores/wishlist'
+import { formatPrice } from '@/utils/format'
 
-const products: Product[] = [
-  {
-    id: 'solstice-ring',
-    name: 'Arya Platinum Hidden Halo Engagement Ring',
-    description: 'Timeless Elegance with the Arya Design',
-    assetType: 'video',
-    assetSrc:
-      'https://ralphjacobs.co.za/cdn/shop/videos/c/vp/7812236f3c42459ca303183f539a06e5/7812236f3c42459ca303183f539a06e5.HD-720p-3.0Mbps-36052827.mp4?v=0',
-    poster: '',
-  },
-  {
-    id: 'aurelia-necklace',
-    name: 'Betty Platinum Solitaire Engagement Ring',
-    description: 'Graduated marquise drops with concealed settings for seamless sparkle.',
-    assetType: 'video',
-    assetSrc:
-      'https://ralphjacobs.co.za/cdn/shop/videos/c/vp/207a749ea1b5470599c9353600d9c399/207a749ea1b5470599c9353600d9c399.HD-720p-3.0Mbps-36027974.mp4?v=0',
-  },
-  {
-    id: 'north-star-earrings',
-    name: 'North Star Earrings',
-    description: 'Asymmetric cluster composition with exceptional light return in motion.',
-    assetType: 'image',
-    assetSrc:
-      'https://images.unsplash.com/photo-1629224316810-9d8805b95e76?auto=format&fit=crop&w=1200&q=80',
-  },
-]
+const route = useRoute()
+const router = useRouter()
+const bag = useBagStore()
+const wishlist = useWishlistStore()
+
+const categoryOptions: Array<'All' | Category> = ['All', ...categories]
+
+const query = ref('')
+const activeCategory = ref<'All' | Category>('All')
+const sortBy = ref<'featured' | 'price-asc' | 'price-desc' | 'name'>('featured')
+const savedOnly = ref(route.query.filter === 'saved')
 
 const hoveredId = ref<string | null>(null)
 const expandedId = ref<string | null>(null)
 const visibleAssets = reactive<Record<string, boolean>>({})
+const gridRef = ref<HTMLElement | null>(null)
 
 const state = reactive<Record<string, { rotation: number; zoom: number }>>(
   Object.fromEntries(products.map((item) => [item.id, { rotation: 0, zoom: 1 }])) as Record<
@@ -141,7 +184,46 @@ const state = reactive<Record<string, { rotation: number; zoom: number }>>(
   >,
 )
 
-let observer: IntersectionObserver | null = null
+const filteredProducts = computed(() => {
+  const needle = query.value.trim().toLowerCase()
+
+  const matches = products.filter((item) => {
+    if (activeCategory.value !== 'All' && item.category !== activeCategory.value) {
+      return false
+    }
+
+    if (savedOnly.value && !wishlist.has(item.id)) {
+      return false
+    }
+
+    if (!needle) {
+      return true
+    }
+
+    return `${item.name} ${item.description} ${item.cut} ${item.metal} ${item.category}`
+      .toLowerCase()
+      .includes(needle)
+  })
+
+  switch (sortBy.value) {
+    case 'price-asc':
+      return [...matches].sort((a, b) => a.price - b.price)
+    case 'price-desc':
+      return [...matches].sort((a, b) => b.price - a.price)
+    case 'name':
+      return [...matches].sort((a, b) => a.name.localeCompare(b.name))
+    default:
+      return matches
+  }
+})
+
+const resetFilters = () => {
+  query.value = ''
+  activeCategory.value = 'All'
+  sortBy.value = 'featured'
+  savedOnly.value = false
+}
+
 const getState = (id: string) => {
   const existing = state[id]
   if (existing) {
@@ -162,10 +244,6 @@ const stageTransform = (id: string) => {
   }
 }
 
-// const rotate = (id: string, amount: number) => {
-//   getState(id).rotation += amount
-// }
-
 const setZoom = (id: string, event: Event) => {
   const target = event.target as HTMLInputElement
   getState(id).zoom = Number(target.value)
@@ -173,11 +251,32 @@ const setZoom = (id: string, event: Event) => {
 
 const zoomValue = (id: string) => getState(id).zoom
 
+const zoomPercent = (id: string) => `${Math.round(zoomValue(id) * 100)}%`
+
 const toggleExpanded = (id: string) => {
   expandedId.value = expandedId.value === id ? null : id
 }
 
 const isAssetVisible = (id: string) => Boolean(visibleAssets[id])
+
+const addToBag = (item: Product) => {
+  bag.add(item.id)
+}
+
+let observer: IntersectionObserver | null = null
+
+const observeCards = () => {
+  if (!gridRef.value) {
+    return
+  }
+
+  for (const card of gridRef.value.querySelectorAll<HTMLElement>('.product-card')) {
+    const id = card.getAttribute('data-id')
+    if (id && !visibleAssets[id]) {
+      observer?.observe(card)
+    }
+  }
+}
 
 onMounted(() => {
   observer = new IntersectionObserver(
@@ -199,12 +298,14 @@ onMounted(() => {
     },
   )
 
-  for (const card of document.querySelectorAll<HTMLElement>('.product-card')) {
-    const id = card.getAttribute('data-id')
-    if (id) {
-      observer.observe(card)
-    }
-  }
+  observeCards()
+})
+
+watch(filteredProducts, () => void nextTick(observeCards), { flush: 'post' })
+
+watch(savedOnly, (value) => {
+  const query = value ? { ...route.query, filter: 'saved' } : { ...route.query, filter: undefined }
+  void router.replace({ query })
 })
 
 onBeforeUnmount(() => {
@@ -218,6 +319,7 @@ onBeforeUnmount(() => {
   padding: clamp(1.3rem, 2vw, 2.2rem) clamp(1.1rem, 3vw, 3.5rem) 3rem;
   background: linear-gradient(170deg, rgba(6, 8, 15, 0.96), rgba(12, 15, 24, 0.84));
 }
+
 .headline {
   margin-bottom: 1.5rem;
   max-width: 65ch;
@@ -242,9 +344,97 @@ onBeforeUnmount(() => {
   color: var(--color-text-muted);
 }
 
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+
+.search {
+  flex: 1 1 220px;
+}
+
+.search input {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-sunken);
+  color: var(--color-ivory);
+  font: inherit;
+  font-size: 0.88rem;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.chip {
+  padding: 0.45rem 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-text-muted);
+  font: inherit;
+  font-size: 0.72rem;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    background var(--speed-fast) var(--ease),
+    border-color var(--speed-fast) var(--ease),
+    color var(--speed-fast) var(--ease);
+}
+
+.chip:hover {
+  border-color: var(--border-gold);
+  color: var(--gold-bright);
+}
+
+.chip.active {
+  border-color: var(--border-gold);
+  background: var(--gold-soft);
+  color: var(--gold-bright);
+}
+
+.sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.72rem;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--color-text-faint);
+}
+
+.sort select {
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-sunken);
+  color: var(--color-ivory);
+  font: inherit;
+  font-size: 0.8rem;
+}
+
+.result-count {
+  margin: 0.9rem 0;
+  font-size: 0.74rem;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--color-text-faint);
+}
+
 .products-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 1rem;
 }
 
@@ -276,6 +466,7 @@ onBeforeUnmount(() => {
 }
 
 .model-stage {
+  display: block;
   position: relative;
   overflow: hidden;
   border-radius: var(--radius-md);
@@ -301,15 +492,54 @@ onBeforeUnmount(() => {
   color: var(--color-text-faint);
 }
 
+.card-copy {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.card-category {
+  margin: 0;
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
 .card-copy h2 {
   margin: 0;
   font-family: var(--font-display);
   font-size: 1.44rem;
 }
 
+.card-copy h2 a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.card-copy h2 a:hover {
+  color: var(--gold-bright);
+}
+
 .card-copy p {
-  margin: 0.34rem 0 0;
+  margin: 0;
   color: var(--color-text-muted);
+}
+
+.card-price {
+  margin-top: 0.35rem !important;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  color: var(--gold-bright) !important;
+}
+
+.card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.card-actions .btn {
+  flex: 1 1 auto;
 }
 
 .controls {
@@ -319,25 +549,40 @@ onBeforeUnmount(() => {
   gap: 0.55rem;
 }
 
-.control {
-  border: 1px solid rgba(255, 255, 255, 0.26);
-  background: rgba(12, 15, 27, 0.4);
-  color: #f4ecdf;
-  font-size: 0.75rem;
-  padding: 0.48rem 0.65rem;
-}
-
 .zoom-wrap {
   display: inline-flex;
   align-items: center;
   gap: 0.55rem;
+  width: 100%;
   font-size: 0.74rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
+  color: var(--color-text-faint);
 }
 
 .zoom-wrap input {
+  flex: 1 1 auto;
   width: min(180px, 100%);
+}
+
+.zoom-value {
+  min-width: 3.2rem;
+  text-align: right;
+  color: var(--gold);
+}
+
+.empty {
+  display: grid;
+  justify-items: start;
+  gap: 0.9rem;
+  padding: 2.5rem 1.4rem;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+}
+
+.empty p {
+  margin: 0;
 }
 
 @media (max-width: 700px) {
@@ -345,16 +590,12 @@ onBeforeUnmount(() => {
     grid-column: auto;
   }
 
-  .controls {
+  .toolbar {
+    flex-direction: column;
     align-items: stretch;
   }
 
-  .control,
-  .zoom-wrap {
-    width: 100%;
-  }
-
-  .zoom-wrap {
+  .sort {
     justify-content: space-between;
   }
 }

@@ -14,32 +14,93 @@
       <nav ref="navRef" class="navbar" aria-label="Primary">
         <router-link class="logo" to="/">Diamond Shop</router-link>
 
-        <button
-          class="nav-toggle btn btn-ghost btn-sm"
-          type="button"
-          :aria-expanded="isMenuOpen"
-          aria-controls="primary-nav"
-          @click="isMenuOpen = !isMenuOpen"
-        >
-          <span class="burger" aria-hidden="true">
-            <span></span>
-            <span></span>
-            <span></span>
-          </span>
-          {{ isMenuOpen ? 'Close' : 'Menu' }}
-        </button>
+        <div class="nav-right">
+          <ul id="primary-nav" class="nav-links" :class="{ open: isMenuOpen }">
+            <li v-for="link in navLinks" :key="link.to">
+              <router-link
+                :to="link.to"
+                :class="{ 'is-active': isActive(link.to) }"
+                @click="closeMenu"
+              >
+                {{ link.label }}
+              </router-link>
+            </li>
+          </ul>
 
-        <ul id="primary-nav" class="nav-links" :class="{ open: isMenuOpen }">
-          <li v-for="link in navLinks" :key="link.to">
+          <div class="nav-actions">
             <router-link
-              :to="link.to"
-              :class="{ 'is-active': isActive(link.to) }"
-              @click="closeMenu"
+              class="nav-pill"
+              :class="{ 'has-items': wishlist.count > 0 }"
+              :to="{ path: '/products', query: { filter: 'saved' } }"
             >
-              {{ link.label }}
+              <span aria-hidden="true">♥</span>
+              <span class="sr-only">Saved pieces</span>
+              <span class="pill-count">{{ wishlist.count }}</span>
             </router-link>
-          </li>
-        </ul>
+
+            <div class="bag">
+              <button
+                class="nav-pill"
+                type="button"
+                :aria-expanded="isBagOpen"
+                aria-controls="bag-panel"
+                @click="isBagOpen = !isBagOpen"
+              >
+                <span>Bag</span>
+                <span class="pill-count">{{ bag.count }}</span>
+              </button>
+
+              <div v-if="isBagOpen" id="bag-panel" class="bag-panel">
+                <p class="bag-heading">Your bag</p>
+
+                <p v-if="!bagLines.length" class="bag-empty">Your bag is empty.</p>
+
+                <ul v-else class="bag-lines">
+                  <li v-for="line in bagLines" :key="line.id">
+                    <span class="line-name">{{ line.name }}</span>
+                    <span class="line-meta">× {{ line.qty }} · {{ formatPrice(line.total) }}</span>
+                    <button
+                      class="line-remove"
+                      type="button"
+                      :aria-label="`Remove ${line.name} from bag`"
+                      @click="bag.remove(line.id)"
+                    >
+                      Remove
+                    </button>
+                  </li>
+                </ul>
+
+                <p class="bag-total">
+                  <span>Total</span>
+                  <strong>{{ formatPrice(bag.total) }}</strong>
+                </p>
+
+                <router-link
+                  class="btn btn-primary btn-sm btn-block"
+                  to="/support#message"
+                  @click="isBagOpen = false"
+                >
+                  Request these pieces
+                </router-link>
+              </div>
+            </div>
+          </div>
+
+          <button
+            class="nav-toggle btn btn-ghost btn-sm"
+            type="button"
+            :aria-expanded="isMenuOpen"
+            aria-controls="primary-nav"
+            @click="isMenuOpen = !isMenuOpen"
+          >
+            <span class="burger" aria-hidden="true">
+              <span></span>
+              <span></span>
+              <span></span>
+            </span>
+            {{ isMenuOpen ? 'Close' : 'Menu' }}
+          </button>
+        </div>
       </nav>
 
       <main id="main-content" class="route-stage" tabindex="-1">
@@ -56,6 +117,10 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
 import SiteFooter from '@/components/SiteFooter.vue'
+import { getProduct } from '@/data/products'
+import { useBagStore } from '@/stores/cart'
+import { useWishlistStore } from '@/stores/wishlist'
+import { formatPrice } from '@/utils/format'
 
 const navLinks = [
   { to: '/', label: 'Home' },
@@ -67,6 +132,28 @@ const route = useRoute()
 const videoRef = ref<HTMLVideoElement | null>(null)
 const navRef = ref<HTMLElement | null>(null)
 const isMenuOpen = ref(false)
+const isBagOpen = ref(false)
+
+const bag = useBagStore()
+const wishlist = useWishlistStore()
+
+const bagLines = computed(() =>
+  bag.lines.flatMap((line) => {
+    const product = getProduct(line.id)
+    if (!product) {
+      return []
+    }
+
+    return [
+      {
+        id: line.id,
+        name: product.name,
+        qty: line.qty,
+        total: product.price * line.qty,
+      },
+    ]
+  }),
+)
 
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
 const showVideo = computed(() => route.name === 'Home' && !reducedMotion.matches)
@@ -136,6 +223,7 @@ watch(
   () => route.fullPath,
   () => {
     closeMenu()
+    isBagOpen.value = false
   },
 )
 </script>
@@ -212,11 +300,154 @@ watch(
   font-family: var(--font-display);
 }
 
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.9rem, 2.4vw, 2rem);
+  margin-left: auto;
+}
+
 .nav-toggle {
   display: none;
   align-items: center;
   gap: 0.55rem;
-  margin-left: auto;
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.nav-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background: var(--surface-sunken);
+  color: var(--color-text-muted);
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    border-color var(--speed-fast) var(--ease),
+    color var(--speed-fast) var(--ease);
+}
+
+.nav-pill:hover,
+.nav-pill.has-items {
+  border-color: var(--border-gold);
+  color: var(--gold-bright);
+}
+
+.pill-count {
+  min-width: 1.35rem;
+  padding: 0.05rem 0.35rem;
+  border-radius: var(--radius-pill);
+  background: var(--gold-soft);
+  color: var(--gold-bright);
+  text-align: center;
+  font-size: 0.68rem;
+}
+
+.bag {
+  position: relative;
+}
+
+.bag-panel {
+  position: absolute;
+  top: calc(100% + 0.7rem);
+  right: 0;
+  z-index: 30;
+  display: grid;
+  gap: 0.7rem;
+  width: min(84vw, 22rem);
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: rgba(6, 8, 14, 0.97);
+  box-shadow: var(--shadow-pop);
+  backdrop-filter: blur(10px);
+}
+
+.bag-heading {
+  margin: 0;
+  color: var(--gold);
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.bag-empty {
+  margin: 0;
+  color: var(--color-text-faint);
+  font-size: 0.86rem;
+}
+
+.bag-lines {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bag-lines li {
+  display: grid;
+  gap: 0.15rem;
+  padding-bottom: 0.55rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.line-name {
+  font-family: var(--font-display);
+  font-size: 0.92rem;
+  color: var(--color-ivory);
+}
+
+.line-meta {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}
+
+.line-remove {
+  justify-self: start;
+  margin-top: 0.2rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--error);
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.bag-total {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0;
+  padding-top: 0.2rem;
+  font-size: 0.8rem;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--color-text-faint);
+}
+
+.bag-total strong {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--gold-bright);
 }
 
 .burger {
@@ -288,7 +519,14 @@ watch(
     display: inline-flex;
   }
 
+  .nav-right {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.5rem 0.75rem;
+  }
+
   .nav-links {
+    order: 3;
     flex-basis: 100%;
     flex-direction: column;
     gap: 0;
