@@ -1,7 +1,9 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 
+import { getProduct } from '@/data/products'
 import Home from '@/views/Home.vue'
 import NotFound from '@/views/NotFound.vue'
+import ProductDetail from '@/views/ProductDetail.vue'
 import Products from '@/views/Products.vue'
 import Support from '@/views/Support.vue'
 
@@ -17,6 +19,13 @@ const routes: RouteRecordRaw[] = [
     name: 'Products',
     component: Products,
     meta: { title: 'Collections' },
+  },
+  {
+    path: '/products/:id',
+    name: 'ProductDetail',
+    component: ProductDetail,
+    meta: { title: 'Piece' },
+    beforeEnter: (to) => (getProduct(String(to.params.id)) ? true : { name: 'NotFound' }),
   },
   {
     path: '/support',
@@ -64,7 +73,10 @@ const router = createRouter({
 })
 
 router.afterEach((to) => {
-  const title = typeof to.meta.title === 'string' ? to.meta.title : ''
+  const productTitle =
+    to.name === 'ProductDetail' ? getProduct(String(to.params.id))?.name : undefined
+  const title = productTitle ?? (typeof to.meta.title === 'string' ? to.meta.title : '')
+
   document.title = title ? `${title} · Diamond Shop` : 'Diamond Shop'
 })
 
