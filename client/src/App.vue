@@ -45,6 +45,8 @@
       <main id="main-content" class="route-stage" tabindex="-1">
         <router-view />
       </main>
+
+      <SiteFooter />
     </div>
   </div>
 </template>
@@ -52,6 +54,8 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
+
+import SiteFooter from '@/components/SiteFooter.vue'
 
 const navLinks = [
   { to: '/', label: 'Home' },

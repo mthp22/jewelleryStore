@@ -87,9 +87,6 @@
         </div>
       </article>
     </div>
-    <footer class="note">
-      <p>Images and videos are sourced from Ralph Jacobs https://ralphjacobs.co.za/</p>
-    </footer>
   </div>
 </template>
 
@@ -220,15 +217,6 @@ onBeforeUnmount(() => {
   min-height: 100vh;
   padding: clamp(1.3rem, 2vw, 2.2rem) clamp(1.1rem, 3vw, 3.5rem) 3rem;
   background: linear-gradient(170deg, rgba(6, 8, 15, 0.96), rgba(12, 15, 24, 0.84));
-}
-.note {
-  display: flex;
-  justify-content: center;
-  padding: 1.4rem;
-  color: var(--color-text-faint);
-  font-size: 0.78rem;
-  letter-spacing: 0.03em;
-  text-align: center;
 }
 .headline {
   margin-bottom: 1.5rem;
